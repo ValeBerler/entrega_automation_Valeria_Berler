@@ -15,6 +15,11 @@ target.mkdir(parents=True, exist_ok=True)
 def driver():
     options = Options()
     options.add_argument("--incognito")
+    options.add_argument("--no-sandbox") # las siguientes 4 líneas son para github actions
+    options.add_argument("--disable-gpu") # para ahorrar recursos
+    options.add_argument("--window-size=1920,1080") # para que tome toda la pantalla
+    options.add_argument("--headless=new") # para que no abra la ventana del navegador
+
 
     driver = webdriver.Chrome(options=options)
     yield driver

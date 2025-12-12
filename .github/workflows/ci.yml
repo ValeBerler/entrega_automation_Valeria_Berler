@@ -1,0 +1,53 @@
+name: CI TalentoTech
+on:
+    push:
+       branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        env:
+            PYTHON_VERSION: '3.9'
+            PIP_CACHE: ~/.cache/pip
+
+        steps: #paso a paso que tiene que hacer github actions.
+            #1 CHECKOUT
+            - name: Checkout code
+              uses: actions/checkout@v4 #para que la máquina pueda acceder al código fuente
+            
+            #2 cache pip (guardado del cache de las dependencias)
+            - name: Cache pip
+              uses: actions/cache@v4
+              with: 
+                path: ${{ env.PIP_CACHE }} #variables de entorno
+                key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }} #utiliza requirements.txt para crear un hash único
+
+            #3 setup python
+            - name: Instalar Python ${{ env.PYTHON_VERSION }} #lo que va dentro de este formato es definir una variable de entorno
+              uses: actions/setup-python@v5
+              with:
+                python-version: ${{ env.PYTHON_VERSION }}   
+
+            #4 install dependencies de python
+            - name: Install dependencies
+              run: pip install -r requirements.txt
+
+            #5 run tests
+            - name: Run tests
+              run: python3 run_tests.py #comando para ejecutar los tests
+
+            
+            #6 generar artefactos (los reportes que nos devuelven los tests + imagenes + logs)
+            - name: Subir HTML report
+              uses: actions/upload-artifact@v4
+              with:
+                name: html-report
+                path: reports/
+            
+            - name: Subir Suite logs
+              uses: actions/upload-artifact@v4
+              with:
+                name: suite-logs
+                path: logs/
